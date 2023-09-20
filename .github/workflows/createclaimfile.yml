@@ -1,0 +1,90 @@
+name: UPSERT workflow
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        type: string
+      region:
+        type: string
+      port_payload:
+        required: true
+        description: Port's payload, including details for who triggered the action and
+          general context (blueprint, run id, etc...)
+        type: string
+jobs:
+  create-entity-in-port-and-update-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: UPSERT Entity
+        uses: port-labs/port-github-action@v1
+        with:
+          identifier: some_identifier
+          title: Some Title
+          team: "[]"
+          icon: DefaultBlueprint
+          blueprint: s3_bucket
+          properties: |-
+            {
+              "arn": "string",
+              "encryption": [],
+              "lifecycleRules": [],
+              "link": "https://example.com",
+              "publicAccess": {
+                "a": 1,
+                "b": 2
+              },
+              "regionalDomainName": "string",
+              "tags": [],
+              "versioningStatus": "Enabled"
+            }
+          relations: "{}"
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          operation: UPSERT
+          runId: ${{fromJson(inputs.port_payload).context.runId}}
+      - name: Generate Crossplane Claim YAML
+        run: |
+          # Replace this with your script to generate the Crossplane claim YAML content
+          bucket_name="${{ github.event.inputs.name }}"
+          region="${{ github.event.inputs.region }}"
+          cat <<EOF > "${bucket_name}.yaml"
+          apiVersion: s3.aws.upbound.io/v1beta1
+          kind: Bucket
+          metadata:
+            name: ${bucket_name}
+          spec:
+            forProvider:
+              region: ${region}
+              tags:
+                project: CCP
+                env: dev
+                aws: eks
+            providerConfigRef:
+              name: newawsconfig
+          EOF
+      - name: Commit and push changes
+        run: |
+          bucket_name="${{ github.event.inputs.bucketname }}"
+          git config user.name "JagadeeshJ03"
+          git config user.email "jjagadeeshgouda1996@gmail.com"
+          git add "${bucket_name}.yaml"
+          git commit -m "Generate Crossplane Claim YAML testing file"
+          git remote add origin_with_token https://$GITHUB_ACTOR:${{ secrets.YOUR_PAT_SECRET }}@github.com/JagadeeshJ03/ccpport.git
+          git push
+      - name: Create a log message
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          operation: PATCH_RUN
+          runId: ${{fromJson(inputs.port_payload).context.runId}}
+          logMessage: An example of a log message
+      - name: Update action run status
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          operation: PATCH_RUN
+          runId: ${{fromJson(inputs.port_payload).context.runId}}
+          status: SUCCESS
+          logMessage: Workflow completed successfully
