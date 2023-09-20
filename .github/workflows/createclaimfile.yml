@@ -48,6 +48,7 @@ jobs:
         run: |
           # Replace this with your script to generate the Crossplane claim YAML content
           bucket_name="${{ github.event.inputs.bucketname }}"
+          region="${{ github.event.inputs.region }}"
           cat <<EOF > "${bucket_name}.yaml"
           apiVersion: s3.aws.upbound.io/v1beta1
           kind: Bucket
