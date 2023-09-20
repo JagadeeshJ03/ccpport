@@ -42,6 +42,8 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           operation: UPSERT
           runId: ${{fromJson(inputs.port_payload).context.runId}}
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Generate Crossplane Claim YAML
         run: |
           # Replace this with your script to generate the Crossplane claim YAML content
