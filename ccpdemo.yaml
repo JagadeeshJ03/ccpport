@@ -4,7 +4,7 @@ metadata:
   name: ccpdemo
 spec:
   forProvider:
-    region: 
+    region: us-east-1
     tags:
       project: CCP
       env: dev
