@@ -2,10 +2,6 @@ name: UPSERT workflow
 on:
   workflow_dispatch:
     inputs:
-      bucketname:
-        type: string
-      region:
-        type: string
       port_payload:
         required: true
         description: Port's payload, including details for who triggered the action and
@@ -47,7 +43,7 @@ jobs:
       - name: Generate Crossplane Claim YAML
         run: |
           # Replace this with your script to generate the Crossplane claim YAML content
-          bucket_name="${{ github.event.inputs.bucketname }}"
+          bucket_name="${{ github.event.inputs.bucketName }}"
           region="${{ github.event.inputs.region }}"
           cat <<EOF > "${bucket_name}.yaml"
           apiVersion: s3.aws.upbound.io/v1beta1
