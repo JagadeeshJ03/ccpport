@@ -10,4 +10,4 @@ spec:
       env: dev
       aws: eks
   providerConfigRef:
-    name: newawsconfig
+    name: awsconfig
