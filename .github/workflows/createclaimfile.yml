@@ -43,16 +43,19 @@ jobs:
       - name: Generate Crossplane Claim YAML
         run: |
           # Replace this with your script to generate the Crossplane claim YAML content
-          bucket_name="${{ github.event.inputs.bucketName }}"
-          region="${{ github.event.inputs.region }}"
+          #bucket_name="${{ github.event.inputs.bucketName }}"
+          #region="${{ github.event.inputs.region }}"
+          param1=$(echo "$params" | jq -r 'github.event.inputs.bucketName')
           cat <<EOF > "${bucket_name}.yaml"
           apiVersion: s3.aws.upbound.io/v1beta1
           kind: Bucket
           metadata:
-            name: ${bucket_name}
+            #name: ${bucket_name}
+            name: test
           spec:
             forProvider:
-              region: ${region}
+              #region: ${region}
+              region: us-west-1
               tags:
                 project: CCP
                 env: dev
